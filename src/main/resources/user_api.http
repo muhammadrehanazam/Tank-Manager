@@ -1,0 +1,21 @@
+POST http://localhost:8080/api/users
+Content-Type: application/json
+
+{
+  "name":"Muhammad rehan",
+  "email":"rehan@gmail.com"
+}
+
+###
+POST http://localhost:8080/api/tasks/user/1
+Content-Type: application/json
+
+{
+  "name": "Do 10 push ups"
+}
+
+###
+GET http://localhost:8080/api/users/1
+
+###
+GET http://localhost:8080/api/users

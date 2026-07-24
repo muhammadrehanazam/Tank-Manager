@@ -1,0 +1,15 @@
+POST http://localhost:8080/api/tasks/user/1
+Content-Type: application/json
+
+{
+  "name": "Do 10 push ups"
+}
+
+###
+PATCH http://localhost:8080/api/tasks/1/status?status=COMPLETED
+
+###
+DELETE http://localhost:8080/api/tasks/1
+
+###
+GET http://localhost:8080/api/tasks/user/1
