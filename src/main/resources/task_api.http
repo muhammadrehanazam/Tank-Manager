@@ -1,15 +1,15 @@
-POST http://localhost:8080/api/tasks/user/1
+POST http://localhost:8080/api/tasks/user/2
 Content-Type: application/json
 
 {
-  "name": "Do 10 push ups"
+  "title": "Make a database"
 }
 
 ###
-PATCH http://localhost:8080/api/tasks/1/status?status=COMPLETED
+PATCH http://localhost:8080/api/tasks/1/status?status=IN_PROGRESS
 
 ###
 DELETE http://localhost:8080/api/tasks/1
 
 ###
-GET http://localhost:8080/api/tasks/user/1
+GET http://localhost:8080/api/tasks/user/2

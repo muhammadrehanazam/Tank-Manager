@@ -1,5 +1,7 @@
 package com.taskmanager.controller;
 
+import com.taskmanager.dto.TaskRequestDTO;
+import com.taskmanager.dto.TaskResponseDTO;
 import com.taskmanager.model.Task;
 import com.taskmanager.service.TaskService;
 import jakarta.validation.Valid;
@@ -17,49 +19,35 @@ public class TaskController {
 
     private final TaskService taskService;
 
-    // 1. Create a task for a specific user (POST /api/tasks/user/{userId})
-    @PostMapping("/user/{userId}") // userid ko task assign kr0
-    public ResponseEntity<?> createTask(@PathVariable Long userId, @Valid @RequestBody Task task) {
-        try {
-            Task createdTask = taskService.createTask(userId, task);
-            return new ResponseEntity<>(createdTask, HttpStatus.CREATED); // Returns HTTP 201
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // Returns HTTP 404 if user doesn't exist
-        }
+    // 1. Create a task for a specific user
+    @PostMapping("/user/{userId}")
+    public ResponseEntity<TaskResponseDTO> createTask(
+            @PathVariable Long userId,
+            @Valid @RequestBody TaskRequestDTO taskDTO) {
+        TaskResponseDTO createdTask = taskService.createTask(userId, taskDTO);
+        return new ResponseEntity<>(createdTask, HttpStatus.CREATED); // Returns HTTP 201
     }
 
-    // 2. Get all tasks for a specific user (GET /api/tasks/user/{userId})
+    // 2. Get all tasks for a specific user
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getTasksByUserId(@PathVariable Long userId) {
-        try {
-            List<Task> tasks = taskService.getTasksByUserId(userId);
-            return ResponseEntity.ok(tasks); // Returns HTTP 200 with JSON list
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // Returns HTTP 404 with error string
-        }
+    public ResponseEntity<List<TaskResponseDTO>> getTasksByUserId(@PathVariable Long userId) {
+        List<TaskResponseDTO> tasks = taskService.getTasksByUserId(userId);
+        return ResponseEntity.ok(tasks); // Returns HTTP 200 with DTO list
     }
 
-    // 3. Update task status (PATCH /api/tasks/{taskId}/status?status=COMPLETED)
+    // 3. Update task status
     @PatchMapping("/{taskId}/status")
-    public ResponseEntity<?> updateTaskStatus(
+    public ResponseEntity<TaskResponseDTO> updateTaskStatus(
             @PathVariable Long taskId,
             @RequestParam Task.Status status) {
-        try {
-            Task updatedTask = taskService.updateTaskStatus(taskId, status);
-            return ResponseEntity.ok(updatedTask);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+        TaskResponseDTO updatedTask = taskService.updateTaskStatus(taskId, status);
+        return ResponseEntity.ok(updatedTask); // Returns HTTP 200 with updated DTO
     }
 
-    // 4. Delete a task by ID (DELETE /api/tasks/{taskId})
+    // 4. Delete a task by ID
     @DeleteMapping("/{taskId}")
-    public ResponseEntity<?> deleteTask(@PathVariable Long taskId) {
-        try {
-            taskService.deleteTask(taskId);
-            return ResponseEntity.ok("Task deleted successfully with ID: " + taskId);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+    public ResponseEntity<String> deleteTask(@PathVariable Long taskId) {
+        taskService.deleteTask(taskId);
+        return ResponseEntity.ok("Task deleted successfully with ID: " + taskId);
     }
 }

@@ -1,6 +1,7 @@
 package com.taskmanager.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Entity
@@ -15,7 +16,8 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    @NotBlank(message = "Title cant be null")
+    private String title;
 
     // 1. ADD THIS FIELD VARIABLE
     @Enumerated(EnumType.STRING)

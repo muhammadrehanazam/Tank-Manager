@@ -1,6 +1,7 @@
 package com.taskmanager.controller;
 
-import com.taskmanager.model.User;
+import com.taskmanager.dto.UserRequestDTO;
+import com.taskmanager.dto.UserResponseDTO;
 import com.taskmanager.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,32 +18,21 @@ public class UserController {
 
     private final UserService userService;
 
-    // 1. Create a new User (POST /api/users)
     @PostMapping
-    public ResponseEntity<?> createUser(@Valid @RequestBody User user) {
-        try {
-            User savedUser = userService.createUser(user);
-            return new ResponseEntity<>(savedUser, HttpStatus.CREATED); // Returns HTTP 201
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); // Returns HTTP 400
-        }
+    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO userDTO) {
+        UserResponseDTO savedUser = userService.createUser(userDTO);
+        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
 
-    // 2. Get User by ID (GET /api/users/{id})
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable Long id) {
-        try {
-            User user = userService.getUserById(id);
-            return ResponseEntity.ok(user); // Returns HTTP 200
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // Returns HTTP 404
-        }
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
+        UserResponseDTO user = userService.getUserById(id);
+        return ResponseEntity.ok(user);
     }
 
-    // 3. Get All Users (GET /api/users)
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+        List<UserResponseDTO> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
 }

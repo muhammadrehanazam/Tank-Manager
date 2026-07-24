@@ -7,11 +7,21 @@ Content-Type: application/json
 }
 
 ###
+POST http://localhost:8080/api/users
+Content-Type: application/json
+
+{
+  "name":"taha",
+  "email":"taha@gmail.com"
+}
+
+
+###
 POST http://localhost:8080/api/tasks/user/1
 Content-Type: application/json
 
 {
-  "name": "Do 10 push ups"
+  "title": "Do 10 push ups"
 }
 
 ###
