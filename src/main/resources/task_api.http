@@ -2,7 +2,7 @@ POST http://localhost:8080/api/tasks/user/2
 Content-Type: application/json
 
 {
-  "title": "Make a database"
+  "title": "Make a frontend"
 }
 
 ###
@@ -13,3 +13,6 @@ DELETE http://localhost:8080/api/tasks/1
 
 ###
 GET http://localhost:8080/api/tasks/user/2
+
+###
+GET http://localhost:8080/api/tasks/1

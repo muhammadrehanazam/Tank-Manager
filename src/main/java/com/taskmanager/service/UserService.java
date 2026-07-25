@@ -7,6 +7,7 @@ import com.taskmanager.model.User;
 import com.taskmanager.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
@@ -15,11 +16,17 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder; // Inject BCrypt PasswordEncoder
 
     public UserResponseDTO createUser(UserRequestDTO dto) {
+        if (userRepository.existsByEmail(dto.email())) {
+            throw new ResourceNotFoundException("Email already registered");
+        }
         User user = new User();
         user.setName(dto.name());
         user.setEmail(dto.email());
+
+        user.setPassword(passwordEncoder.encode(dto.password()));
 
         User savedUser = userRepository.save(user);
         return mapToDTO(savedUser);

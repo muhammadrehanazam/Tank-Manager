@@ -35,6 +35,14 @@ public class TaskController {
         return ResponseEntity.ok(tasks); // Returns HTTP 200 with DTO list
     }
 
+    // get task by task id
+// Get single task by Task ID (GET /api/tasks/1)
+    @GetMapping("/{taskId}")
+    public ResponseEntity<TaskResponseDTO> getTaskById(@PathVariable Long taskId) {
+        TaskResponseDTO task = taskService.getTaskById(taskId);
+        return ResponseEntity.ok(task);
+    }
+
     // 3. Update task status
     @PatchMapping("/{taskId}/status")
     public ResponseEntity<TaskResponseDTO> updateTaskStatus(

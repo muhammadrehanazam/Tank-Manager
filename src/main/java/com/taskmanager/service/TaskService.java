@@ -45,6 +45,15 @@ public class TaskService {
                 .toList();
     }
 
+    // get task by task id
+// Get task by Task ID
+    public TaskResponseDTO getTaskById(Long taskId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
+
+        return mapToDTO(task);
+    }
+
     // 3. Update task status (returns DTO)
     public TaskResponseDTO updateTaskStatus(Long taskId, Task.Status status) {
         Task task = taskRepository.findById(taskId)
