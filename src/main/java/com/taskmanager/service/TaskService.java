@@ -20,9 +20,9 @@ public class TaskService {
     private final UserRepository userRepository;
 
     // 1. Create a task
-    public TaskResponseDTO createTask(Long userId, TaskRequestDTO dto) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+    public TaskResponseDTO createTaskByEmail(String email, TaskRequestDTO dto) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
 
         Task task = new Task();
         task.setTitle(dto.title());
@@ -45,31 +45,43 @@ public class TaskService {
                 .toList();
     }
 
-    // get task by task id
-// Get task by Task ID
-    public TaskResponseDTO getTaskById(Long taskId) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
+    // 2. Get all tasks for LOGGED-IN user (No userId in URL needed)
+    public List<TaskResponseDTO> getMyTasks(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
 
-        return mapToDTO(task);
+        return taskRepository.findByUserId(user.getId())
+                .stream()
+                .map(this::mapToDTO)
+                .toList();
     }
 
-    // 3. Update task status (returns DTO)
-    public TaskResponseDTO updateTaskStatus(Long taskId, Task.Status status) {
+    // 3. Update task status WITH ownership check
+    public TaskResponseDTO updateTaskStatusSecure(Long taskId, Task.Status status, String email) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
+
+        // Security Check: Kya ye task logged-in user ka hi hai?
+        if (!task.getUser().getEmail().equals(email)) {
+            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to modify this task!");
+        }
 
         task.setStatus(status);
         Task updatedTask = taskRepository.save(task);
         return mapToDTO(updatedTask);
     }
 
-    // 4. Delete a task
-    public void deleteTask(Long taskId) {
-        if (!taskRepository.existsById(taskId)) {
-            throw new ResourceNotFoundException("Task not found with id: " + taskId);
+    // 4. Delete a task WITH ownership check
+    public void deleteTaskSecure(Long taskId, String email) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
+
+        // Security Check
+        if (!task.getUser().getEmail().equals(email)) {
+            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to delete this task!");
         }
-        taskRepository.deleteById(taskId);
+
+        taskRepository.delete(task);
     }
 
     // Helper mapper method

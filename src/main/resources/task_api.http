@@ -1,18 +1,25 @@
-POST http://localhost:8080/api/tasks/user/2
+
+###
+PATCH http://localhost:8080/api/tasks/8/status?status=IN_PROGRESS
+Authorization: Bearer {{jwt_token}}
+
+###
+DELETE http://localhost:8080/api/tasks/7
+Authorization: Bearer {{jwt_token}}
+
+###
+GET http://localhost:8080/api/tasks
+Authorization: Bearer {{jwt_token}}
+
+
+
+### Create Task
+POST http://localhost:8080/api/tasks
+Authorization: Bearer {{jwt_token}}
 Content-Type: application/json
 
 {
-  "title": "Make a frontend"
+  "title": "final testing with new user",
+  "status": "COMPLETED",
+  "priority": "MEDIUM"
 }
-
-###
-PATCH http://localhost:8080/api/tasks/1/status?status=IN_PROGRESS
-
-###
-DELETE http://localhost:8080/api/tasks/1
-
-###
-GET http://localhost:8080/api/tasks/user/2
-
-###
-GET http://localhost:8080/api/tasks/1

@@ -5,3 +5,31 @@ Content-Type: application/json
   "email": "rehan@gmail.com",
   "password": "12345678"
 }
+
+
+### Login User
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "taha@gmail.com",
+  "password": "abc123"
+}
+
+> {%
+    client.global.set("jwt_token", response.body.token);
+%}
+
+### Login User
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "akhyar@gmail.com",
+  "password": "akhyar123"
+}
+
+> {%
+    client.global.set("jwt_token", response.body.token);
+%}
+

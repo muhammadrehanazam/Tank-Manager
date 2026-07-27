@@ -9,6 +9,18 @@ Content-Type: application/json
 
 ###
 POST http://localhost:8080/api/users
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+{
+  "name":"Akhyar ahmed",
+  "email":"akhyar@gmail.com",
+  "password": "akhyar123"
+}
+
+###
+POST http://localhost:8080/api/users
+Authorization: Bearer {{jwt_token}}
 Content-Type: application/json
 
 {
@@ -19,15 +31,9 @@ Content-Type: application/json
 
 
 ###
-POST http://localhost:8080/api/tasks/user/1
-Content-Type: application/json
-
-{
-  "title": "Do 10 push ups"
-}
-
-###
-GET http://localhost:8080/api/users/1
+GET http://localhost:8080/api/users/me
+Authorization: Bearer {{jwt_token}}
 
 ###
 GET http://localhost:8080/api/users
+Authorization: Bearer {{jwt_token}}

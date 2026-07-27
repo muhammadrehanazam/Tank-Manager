@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,43 +20,45 @@ public class TaskController {
 
     private final TaskService taskService;
 
-    // 1. Create a task for a specific user
-    @PostMapping("/user/{userId}")
+    // 1. Create task for logged-in user
+    @PostMapping
     public ResponseEntity<TaskResponseDTO> createTask(
-            @PathVariable Long userId,
-            @Valid @RequestBody TaskRequestDTO taskDTO) {
-        TaskResponseDTO createdTask = taskService.createTask(userId, taskDTO);
-        return new ResponseEntity<>(createdTask, HttpStatus.CREATED); // Returns HTTP 201
+            Authentication authentication,
+            @Valid @RequestBody TaskRequestDTO dto) {
+
+        String userEmail = authentication.getName();
+        TaskResponseDTO task = taskService.createTaskByEmail(userEmail, dto);
+        return new ResponseEntity<>(task, HttpStatus.CREATED);
     }
 
-    // 2. Get all tasks for a specific user
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<TaskResponseDTO>> getTasksByUserId(@PathVariable Long userId) {
-        List<TaskResponseDTO> tasks = taskService.getTasksByUserId(userId);
-        return ResponseEntity.ok(tasks); // Returns HTTP 200 with DTO list
+    // 2. Get all tasks for LOGGED-IN user (URL change: GET /api/tasks)
+    @GetMapping
+    public ResponseEntity<List<TaskResponseDTO>> getMyTasks(Authentication authentication) {
+        String userEmail = authentication.getName();
+        List<TaskResponseDTO> tasks = taskService.getMyTasks(userEmail);
+        return ResponseEntity.ok(tasks);
     }
 
-    // get task by task id
-// Get single task by Task ID (GET /api/tasks/1)
-    @GetMapping("/{taskId}")
-    public ResponseEntity<TaskResponseDTO> getTaskById(@PathVariable Long taskId) {
-        TaskResponseDTO task = taskService.getTaskById(taskId);
-        return ResponseEntity.ok(task);
-    }
-
-    // 3. Update task status
+    // 3. Update task status (With ownership check)
     @PatchMapping("/{taskId}/status")
     public ResponseEntity<TaskResponseDTO> updateTaskStatus(
+            Authentication authentication,
             @PathVariable Long taskId,
             @RequestParam Task.Status status) {
-        TaskResponseDTO updatedTask = taskService.updateTaskStatus(taskId, status);
-        return ResponseEntity.ok(updatedTask); // Returns HTTP 200 with updated DTO
+
+        String userEmail = authentication.getName();
+        TaskResponseDTO updatedTask = taskService.updateTaskStatusSecure(taskId, status, userEmail);
+        return ResponseEntity.ok(updatedTask);
     }
 
-    // 4. Delete a task by ID
+    // 4. Delete a task (With ownership check)
     @DeleteMapping("/{taskId}")
-    public ResponseEntity<String> deleteTask(@PathVariable Long taskId) {
-        taskService.deleteTask(taskId);
+    public ResponseEntity<String> deleteTask(
+            Authentication authentication,
+            @PathVariable Long taskId) {
+
+        String userEmail = authentication.getName();
+        taskService.deleteTaskSecure(taskId, userEmail);
         return ResponseEntity.ok("Task deleted successfully with ID: " + taskId);
     }
 }
