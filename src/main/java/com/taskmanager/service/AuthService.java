@@ -29,8 +29,8 @@ public class AuthService {
             throw new BadCredentialsException("Invalid email or password");
         }
 
-        // 3. Generate Token
-        String token = jwtUtils.generateToken(user.getEmail());
+        // 3. Generate Token (Pass full User object to embed role)
+        String token = jwtUtils.generateToken(user);
 
         return new JwtResponseDTO(token, user.getEmail());
     }

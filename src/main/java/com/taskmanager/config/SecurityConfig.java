@@ -26,15 +26,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // REST APIs ke liye CSRF off
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Session save nahi karna
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // Login / Auth endpoints open hain
-                        .requestMatchers(HttpMethod.POST, "/api/users").permitAll() // User registration open hai
-                        .anyRequest().authenticated() // Baaki Tamaam Endpoints (Tasks etc.) Protected Hain!
+                        // Public endpoints
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+
+                        // 🔒 Specific Role Restrictions
+                        .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN") // Sirf ADMIN ke liye
+
+                        // Baaki Tamaam Endpoints Logged-In Users ke liye
+                        .anyRequest().authenticated()
                 );
 
-        // Standard Spring Security filter se pehle humara JwtAuthFilter chalega
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

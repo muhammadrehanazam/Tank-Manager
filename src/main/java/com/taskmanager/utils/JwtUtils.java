@@ -1,5 +1,6 @@
 package com.taskmanager.utils;
 
+import com.taskmanager.model.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,27 +22,37 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    // Token Generate karne ke liye
-    public String generateToken(String email) {
+    // 1. Token Generate (Includes Email + Role Claim)
+    public String generateToken(User user) {
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(user.getEmail())
+                .claim("role", user.getRole().name()) // Role claim embed kar rahe hain
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // Token se Email extract karne ke liye
+    // 2. Token se Email Extract karna
     public String getEmailFromToken(String token) {
+        return getClaimsFromToken(token).getSubject();
+    }
+
+    // 3. Token se Role Extract karna (RBAC Filter ke liye)
+    public String getRoleFromToken(String token) {
+        return getClaimsFromToken(token).get("role", String.class);
+    }
+
+    // Helper Method: Parse Claims
+    public Claims getClaimsFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .getBody();
     }
 
-    // Token Validation check karne ke liye
+    // 4. Token Validation Check
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
