@@ -8,6 +8,7 @@ import com.taskmanager.model.User;
 import com.taskmanager.repository.TaskRepository;
 import com.taskmanager.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class TaskService {
         return mapToDTO(savedTask);
     }
 
-    // 2. Get all tasks for a specific user
+    // 2. Get all tasks for a specific user (Admin access)
     public List<TaskResponseDTO> getTasksByUserId(Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new ResourceNotFoundException("User not found with id: " + userId);
@@ -45,7 +46,7 @@ public class TaskService {
                 .toList();
     }
 
-    // 2. Get all tasks for LOGGED-IN user (No userId in URL needed)
+    // 3. Get all tasks for LOGGED-IN user
     public List<TaskResponseDTO> getMyTasks(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
@@ -56,14 +57,13 @@ public class TaskService {
                 .toList();
     }
 
-    // 3. Update task status WITH ownership check
+    // 4. Update task status WITH ownership check
     public TaskResponseDTO updateTaskStatusSecure(Long taskId, Task.Status status, String email) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
 
-        // Security Check: Kya ye task logged-in user ka hi hai?
-        if (!task.getUser().getEmail().equals(email)) {
-            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to modify this task!");
+        if (!task.getUser().getEmail().equalsIgnoreCase(email)) {
+            throw new AccessDeniedException("You do not have permission to modify this task!");
         }
 
         task.setStatus(status);
@@ -71,14 +71,27 @@ public class TaskService {
         return mapToDTO(updatedTask);
     }
 
-    // 4. Delete a task WITH ownership check
+    // 5. Update task priority WITH ownership check
+    public TaskResponseDTO updateTaskPrioritySecure(Long taskId, Task.Priority priority, String email) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
+
+        if (!task.getUser().getEmail().equalsIgnoreCase(email)) {
+            throw new AccessDeniedException("You do not have permission to modify this task!");
+        }
+
+        task.setPriority(priority);
+        Task updatedTask = taskRepository.save(task);
+        return mapToDTO(updatedTask);
+    }
+
+    // 6. Delete a task WITH ownership check
     public void deleteTaskSecure(Long taskId, String email) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
 
-        // Security Check
-        if (!task.getUser().getEmail().equals(email)) {
-            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to delete this task!");
+        if (!task.getUser().getEmail().equalsIgnoreCase(email)) {
+            throw new AccessDeniedException("You do not have permission to delete this task!");
         }
 
         taskRepository.delete(task);
