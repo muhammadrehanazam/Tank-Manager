@@ -357,7 +357,8 @@
 </div>
 
 <script>
-    const API_BASE_URL = 'http://localhost:8080/api';
+    // Localhost ke bajaye dynamic live domain pick karega
+    const API_BASE_URL = window.location.origin + '/api';
     let currentEditUserId = null;
 
     window.onload = function() {
