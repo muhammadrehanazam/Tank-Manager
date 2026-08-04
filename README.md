@@ -1,5 +1,6 @@
 # ⚡ Task Manager Workspace
 
+https://taask-manager-production.up.railway.app/
 A modern, full-stack Task Management application built using **Spring Boot**, **Spring Security**, **JWT Authentication**, and **Vanilla JavaScript**. 
 
 The system provides a decoupled architecture with strict **Role-Based Access Control (RBAC)**, separating System Administration from Standard User task management. It features a two-column Kanban board workspace, live priority/status patching, and cascade handling for user deletion safeguards.
